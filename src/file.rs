@@ -452,6 +452,23 @@ impl Ext4File {
         Ok(EOK as usize)
     }
 
+    /// read out the path that symlink points to
+    /// self should be symlink!
+    pub fn symlink_read(&self, buf: &mut [u8]) -> Result<usize, i32> {
+        let c_path = self.file_path.clone();
+        let mut r_cnt = 0;
+        let r = unsafe {
+            ext4_readlink(c_path.as_ptr(), buf.as_mut_ptr() as _, buf.len(), &mut r_cnt)
+        };
+        match r {
+            0 => Ok(r_cnt),
+            _ => {
+                error!("ext4_readlink: rc = {r}, path = {path}");
+                Err(r)
+            }
+        }
+    }
+
     /// create a hard link
     pub fn link_create(&self, target: &str) -> Result<usize, i32> {
         // new path
