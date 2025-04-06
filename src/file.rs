@@ -433,6 +433,40 @@ impl Ext4File {
 
         Ok((name, inode_type))
     }
+
+    /********* LINK OPERATION *********/
+    
+    /// create a soft link (aka. symlink)
+    pub fn symlink_create(&self, target: &str) -> Result<usize, i32> {
+        // new path
+        let c_target = CString::new(target).expect("symlink cstring failed");
+        // the origin path
+        let c_path = self.file_path.clone();
+        let r = unsafe {
+            ext4_fsymlink(c_target.as_ptr(), c_path.as_ptr())
+        };
+        if r != EOK as i32 {
+            error!("ext4_fsymlink: rc = {}", r);
+            return Err(r);
+        }
+        Ok(EOK as usize)
+    }
+
+    /// create a hard link
+    pub fn link_create(&self, target: &str) -> Result<usize, i32> {
+        // new path
+        let c_target = CString::new(target).expect("symlink cstring failed");
+        // the origin path
+        let c_path = self.file_path.clone();
+        let r = unsafe {
+            ext4_flink(c_path.as_ptr(), c_target.as_ptr())
+        };
+        if r != EOK as i32 {
+            error!("ext4_fsymlink: rc = {}", r);
+            return Err(r);
+        }
+        Ok(EOK as usize)
+    }
 }
 
 /*
