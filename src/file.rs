@@ -463,7 +463,7 @@ impl Ext4File {
         match r {
             0 => Ok(r_cnt),
             _ => {
-                error!("ext4_readlink: rc = {r}, path = {path}");
+                error!("ext4_readlink: rc = {r}");
                 Err(r)
             }
         }
