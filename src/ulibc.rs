@@ -1,6 +1,6 @@
 use alloc::alloc::{alloc, dealloc, Layout};
 use alloc::slice::from_raw_parts_mut;
-use alloc::string::String;
+// use alloc::string::String;
 use core::cmp::min;
 use core::ffi::{c_char, c_int, c_size_t, c_void};
 
@@ -22,7 +22,7 @@ unsafe extern "C" fn printf(str: *const c_char, mut args: ...) -> c_int {
 #[cfg(not(feature = "print"))]
 #[linkage = "weak"]
 #[no_mangle]
-unsafe extern "C" fn printf(str: *const c_char, mut args: ...) -> c_int {
+unsafe extern "C" fn printf(str: *const c_char, mut _args: ...) -> c_int {
     use core::ffi::CStr;
     let c_str = unsafe { CStr::from_ptr(str) };
     //let arg1 = args.arg::<usize>();

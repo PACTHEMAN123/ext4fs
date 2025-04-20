@@ -472,14 +472,15 @@ impl Ext4File {
     /// create a hard link
     pub fn link_create(&self, target: &str) -> Result<usize, i32> {
         // new path
-        let c_target = CString::new(target).expect("symlink cstring failed");
+        let c_target = CString::new(target).expect("link cstring failed");
         // the origin path
         let c_path = self.file_path.clone();
         let r = unsafe {
             ext4_flink(c_path.as_ptr(), c_target.as_ptr())
         };
         if r != EOK as i32 {
-            error!("ext4_fsymlink: rc = {}", r);
+            let path = c_path.to_str().expect("errot");
+            error!("ext4_flink: rc = {}, when try to link {} {}", r, target, path);
             return Err(r);
         }
         Ok(EOK as usize)

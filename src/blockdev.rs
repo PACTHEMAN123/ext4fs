@@ -90,7 +90,7 @@ impl<K: KernelDevOp> Ext4BlockWrapper<K> {
         };
 
         info!("New an Ext4 Block Device");
-        ext4bd.ext4_set_debug();
+        // ext4bd.ext4_set_debug();
 
         // ext4_blockdev into static instance
         // lwext4_mount
@@ -101,9 +101,9 @@ impl<K: KernelDevOp> Ext4BlockWrapper<K> {
                 .expect("Failed to mount the ext4 file system, perhaps the disk is not an EXT4 file system.");
         }
 
-        ext4bd.lwext4_dir_ls();
-        ext4bd.print_lwext4_mp_stats();
-        ext4bd.print_lwext4_block_stats();
+        // ext4bd.lwext4_dir_ls();
+        // ext4bd.print_lwext4_mp_stats();
+        // ext4bd.print_lwext4_block_stats();
 
         Ok(ext4bd)
     }
