@@ -400,9 +400,12 @@ impl Ext4File {
         let mut name: Vec<Vec<u8>> = Vec::new();
         let mut inode_type: Vec<InodeTypes> = Vec::new();
 
-        //info!("ls {}", str::from_utf8(path).unwrap());
+
         unsafe {
-            ext4_dir_open(&mut d, c_path);
+            let r = ext4_dir_open(&mut d, c_path);
+            if r != EOK as i32 {
+                error!("ext4_dir_open: rc = {r}");
+            }
             drop(CString::from_raw(c_path));
 
             let mut de = ext4_dir_entry_next(&mut d);
@@ -445,10 +448,17 @@ impl Ext4File {
         let r = unsafe {
             ext4_fsymlink(c_target.as_ptr(), c_path.as_ptr())
         };
-        if r != EOK as i32 {
+
+        if r == EOK as i32 {
+            return Ok(EOK as usize)
+        } else if r == EEXIST as i32 {
+            warn!("ex4_fsymlink: the link is already exist, do nothing");
+            return Ok(EEXIST as usize)
+        } else {
             error!("ext4_fsymlink: rc = {}", r);
             return Err(r);
         }
+
         Ok(EOK as usize)
     }
 
@@ -479,7 +489,7 @@ impl Ext4File {
             ext4_flink(c_path.as_ptr(), c_target.as_ptr())
         };
         if r != EOK as i32 {
-            let path = c_path.to_str().expect("errot");
+            let path = c_path.to_str().expect("failed to convert");
             error!("ext4_flink: rc = {}, when try to link {} {}", r, target, path);
             return Err(r);
         }
