@@ -440,11 +440,11 @@ impl Ext4File {
     /********* LINK OPERATION *********/
     
     /// create a soft link (aka. symlink)
-    pub fn symlink_create(&self, target: &str) -> Result<usize, i32> {
+    pub fn symlink_create(&self, path: &str) -> Result<usize, i32> {
         // new path
-        let c_target = CString::new(target).expect("symlink cstring failed");
+        let c_path = CString::new(path).expect("symlink cstring failed");
         // the origin path
-        let c_path = self.file_path.clone();
+        let c_target = self.file_path.clone();
         let r = unsafe {
             ext4_fsymlink(c_target.as_ptr(), c_path.as_ptr())
         };
