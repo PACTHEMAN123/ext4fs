@@ -1,3 +1,5 @@
+use core::str::FromStr;
+
 use crate::bindings::*;
 use alloc::{ffi::CString, vec::Vec};
 
@@ -136,12 +138,17 @@ impl Ext4File {
     /// Rename file and directory
     pub fn file_rename(&mut self, path: &str, new_path: &str) -> Result<usize, i32> {
         let c_path = CString::new(path).expect("CString::new failed");
-        let c_path = c_path.into_raw();
+        let c_path_raw = c_path.clone().into_raw();
+
+        if self.file_path == c_path {
+            self.file_path = CString::new(new_path).expect("CString::new failed when change self path");
+        }
+
         let c_new_path = CString::new(new_path).expect("CString::new failed");
         let c_new_path = c_new_path.into_raw();
-        let r = unsafe { ext4_frename(c_path, c_new_path) };
+        let r = unsafe { ext4_frename(c_path_raw, c_new_path) };
         unsafe {
-            drop(CString::from_raw(c_path));
+            drop(CString::from_raw(c_path_raw));
             drop(CString::from_raw(c_new_path));
         }
         if r != EOK as i32 {
